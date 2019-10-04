@@ -1,0 +1,33 @@
+https://stackoverflow.com/questions/53743561/deblurring-an-image
+from scipy.ndimage import convolve
+
+blurred_image = # Load image
+kernel = # Load kernel/psf
+learning_rate = # You need to find this yourself, do a logarithmic line search. Small rate will always converge, but slowly. Start with 0.4 and divide by 2 every time it fails.
+maxit = 100
+
+def loss(image):
+    return np.sum(convolve(image, kernel) - blurred_image)
+
+def gradient(image):
+    return convolve(convolve(image, kernel) - blurred_image)
+
+deblurred = blurred_image.copy()
+for _ in range(maxit):
+    deblurred -= learning_rate*gradient(image)
+	
+	
+	
+https://photutils.readthedocs.io/en/stable/psf_matching.html
+>>> import numpy as np
+>>> from astropy.modeling.models import Gaussian2D
+>>> y, x = np.mgrid[0:51, 0:51]
+>>> gm1 = Gaussian2D(100, 25, 25, 3, 3)
+>>> gm2 = Gaussian2D(100, 25, 25, 5, 5)
+>>> g1 = gm1(x, y)
+>>> g2 = gm2(x, y)
+>>> g1 /= g1.sum()
+>>> g2 /= g2.sum()
+
+>>> from photutils import create_matching_kernel
+>>> kernel = create_matching_kernel(g1, g2)
